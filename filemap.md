@@ -7,6 +7,8 @@ platformio.ini — envs: core2, cyd; lib deps pinned
 docs/SPEC.md — design/architecture spec
 docs/PLAN.md — task list and status
 docs/BOARDS.md — per-board notes and how to add a new board
+docs/images/ — README mockups (radar/menu, landscape/portrait, overview.png); generated
+tools/render_mockups.py — renders docs/images/ mockups (Pillow; mirrors radar.cpp/menu.cpp drawing)
 legacy/core2_original.cpp — original single-file Core2 sketch (reference only)
 src/main.cpp — setup/loop, app state, touch gestures
 src/hal/hal.h — board-abstraction interface
