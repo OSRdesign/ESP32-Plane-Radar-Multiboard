@@ -56,7 +56,7 @@ define any Core2 pins itself.
 The menu needs touch coordinates (`hal::touchPoint`). LovyanGFX rotates them together with the
 display rotation, using the `x_min/x_max/y_min/y_max` calibration in `board_cyd.cpp`. If taps land
 mirrored or rotated on a variant, set `-DCYD_TOUCH_OFFSET=n` (touch `offset_rotation`, 0-7) in the env.
-Touch is verified in all four orientations on both CYD variants (ILI9341 `cyd` and ST7789 `cyd_st7789`); not yet on Core2.
+Touch and the menu are verified in all four orientations on all supported boards: Core2, and both CYD variants (ILI9341 `cyd`, ST7789 `cyd_st7789`).
 
 ### Known CYD variants
 
