@@ -17,12 +17,13 @@ WebServer configServer(80);
 bool active = false;
 
 const char CONFIG_HTML[] PROGMEM = R"HTML(
-<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plane Radar setup</title><style>body{font-family:sans-serif;max-width:380px;margin:32px auto;padding:0 16px}input,button{box-sizing:border-box;width:100%;padding:10px;margin:5px 0 14px;font-size:16px}button{border:0;background:#078a42;color:white}</style></head><body><h2>Plane Radar setup</h2><p>Enter the same Wi-Fi used by the ADS-B receiver, its local IP address, and the latitude and longitude at the centre of this radar.</p><form method="post" action="/save"><label>Wi-Fi name</label><input name="ssid" required><label>Wi-Fi password</label><input name="pass" type="password"><label>Receiver IP address</label><input name="receiver" placeholder="192.168.1.50" inputmode="decimal" required><label>Latitude</label><input name="lat" placeholder="52.3676" required><label>Longitude</label><input name="lon" placeholder="4.9041" required><button>Save and connect</button></form></body></html>
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plane Radar setup</title><style>body{font-family:sans-serif;max-width:380px;margin:32px auto;padding:0 16px}input,button{box-sizing:border-box;width:100%;padding:10px;margin:5px 0 14px;font-size:16px}button{border:0;background:#078a42;color:white}</style></head><body><h2>Plane Radar setup</h2><p>Enter the same Wi-Fi used by the ADS-B receiver, its local IP address, and the latitude and longitude at the centre of this radar.</p><form method="post" action="/save"><label>Wi-Fi name</label><input name="ssid" required><label>Wi-Fi password</label><input name="pass" type="password"><label>Receiver IP address</label><input name="receiver" placeholder="192.168.1.50" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" required><label>Latitude</label><input name="lat" placeholder="52.3676" required><label>Longitude</label><input name="lon" placeholder="4.9041" required><button>Save and connect</button></form></body></html>
 )HTML";
 
 // Parses a whole-string decimal number within [lo, hi].
 bool parseCoord(String s, double lo, double hi, double& out) {
   s.trim();
+  s.replace(',', '.');  // phone keyboards in many locales type a decimal comma
   if (s.isEmpty()) return false;
   const char* begin = s.c_str();
   char* end = nullptr;
