@@ -19,7 +19,7 @@ PlatformIO, `espressif32` platform, framework arduino. Libraries: ArduinoJson ^7
 - `geo` — haversine/bearing (moved verbatim).
 - `config` — NVS (namespace `planeradar`, same keys as original: ssid, pass, receiver, lat, lon), setup AP `PlaneRadar-Setup`, 192.168.4.1 form. Fix: HTML-escape nothing needed but validate lat/lon ranges and non-empty fields; keep behaviour.
 - `radar` — fetch + render. Fix vs original: draw each plane once (original draws twice, the first pass is erased by `drawRadarShell`); render into an off-screen sprite or at least avoid full-screen flicker where RAM allows (320x240x16bit = 150 KB; CYD without PSRAM may not fit — use fillScreen-less partial redraw of the radar area, or fall back to direct draw). Keep it simple: direct draw, no sprite, acceptable.
-- Landscape layout is identical to the original (CX=160, CY=125, R=100). Portrait (240x320): R=100, CX=W/2, CY=190; header, range label, N/S/W/E and hint positions derive from the same `Layout` struct (width/height), never hardcoded 320/240. Battery line is omitted when `batteryPercent()==-1`.
+- Landscape layout follows the original (CX=160, CY=120, R=100; the circle sits 5 px higher so the S label is not hidden by the hint). Portrait (240x320): R=100, CX=W/2, CY=190; header, range label, N/S/W/E and hint positions derive from the same `Layout` struct (width/height), never hardcoded 320/240. Battery line is omitted when `batteryPercent()==-1`.
 - Touch: CYD uses XPT2046 via LovyanGFX `getTouch`; Core2 via `M5.Touch.getCount()`. Gesture logic (tap vs 5 s hold) in main.cpp using `hal::touchDown()`; coordinates (`touchPoint`) are only used by the menu.
 
 ## Menu and orientation

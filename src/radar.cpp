@@ -24,7 +24,7 @@ Layout layout() {
   l.w = hal::width();
   l.h = hal::height();
   l.cx = l.w / 2;
-  l.cy = l.w > l.h ? 125 : 190;
+  l.cy = l.w > l.h ? 120 : 190;
   return l;
 }
 

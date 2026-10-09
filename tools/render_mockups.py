@@ -171,7 +171,7 @@ SAMPLE = {
 
 
 def draw_shell(s, battery, data):
-    cx, cy = s.w // 2, (125 if s.w > s.h else 190)
+    cx, cy = s.w // 2, (120 if s.w > s.h else 190)
     s.datum, s.size = "top_left", 1
     line = 6
     if battery is not None and battery >= 0:
@@ -206,7 +206,7 @@ def draw_shell(s, battery, data):
 def draw_aircraft(s, bearing, distance, label, range_km):
     if distance > range_km:
         return
-    cx, cy = s.w // 2, (125 if s.w > s.h else 190)
+    cx, cy = s.w // 2, (120 if s.w > s.h else 190)
     a = math.radians(bearing - 90.0)
     r = distance / range_km * RADIUS
     x, y = cx + int(math.cos(a) * r), cy + int(math.sin(a) * r)
