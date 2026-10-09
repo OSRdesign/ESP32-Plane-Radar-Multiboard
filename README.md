@@ -21,7 +21,8 @@ one PlatformIO project.
 - Battery percentage on boards that have a battery gauge (Core2); hidden on boards without one (CYD).
 - Browser-based first-boot setup through a Wi-Fi access point (no code changes or credentials in the
   source). Settings are stored in the ESP32's flash (NVS).
-- Hold the screen for 5 seconds to clear the setup and start over.
+- Hold the screen for 5 seconds (then release) to open an on-screen menu: pick the screen orientation
+  (landscape, portrait, or either flipped; remembered across reboots) or re-run the setup.
 - Works fully on your local network: no cloud service or API key.
 
 ## Supported boards
@@ -86,8 +87,13 @@ If the board cannot connect to the saved Wi-Fi within about 15 seconds, it reope
 
 - **Tap** the screen: cycle the range 10 → 25 → 50 → 100 → 10 km. The current range is shown at the
   top right, and the aircraft list refreshes immediately.
-- **Hold** the screen for 5 seconds, then release: clears all settings and restarts into the setup
-  portal.
+- **Hold** the screen for 5 seconds, then release: opens the menu.
+  - **Landscape / Portrait / Landscape flip / Portrait flip**: tap one to rotate the screen
+    immediately; the choice is saved and used on the next boot. The radar works in all four.
+  - **Re-run setup**: tap twice (the first tap turns it into a red "Tap again"; any other tap or
+    4 seconds cancels). Clears all settings, including the orientation, and restarts into the setup
+    portal.
+  - **Back**: return to the radar.
 - **Over head**: shows the callsign of the nearest aircraft within 2 km of the radar centre, or `---`
   when there is none.
 - The radar refreshes every 5 seconds.
@@ -98,8 +104,9 @@ If the board cannot connect to the saved Wi-Fi within about 15 seconds, it reope
 |---|---|
 | Colours are wrong (inverted, e.g. white background) on a CYD | Flash the `cyd_invert` env. |
 | Screen is mirrored, rotated, blank or shows noise on a CYD | Flash the `cyd_st7789` env (ST7789 panel). If it is still dark, your board may drive the backlight on GPIO27 instead of GPIO21; see [docs/BOARDS.md](docs/BOARDS.md). |
-| Taps or holds are not detected on a CYD | The app only checks whether the screen is touched, not where, so calibration offsets do not matter. Press firmly (resistive touch) and check the touch pins in [docs/BOARDS.md](docs/BOARDS.md). |
-| Status shows **Offline** | The receiver did not answer with valid JSON. Check the IP, that `http://<ip>/tar1090/data/aircraft.json` opens in a browser from the same network, and that the receiver does not require HTTPS. Re-enter the IP by holding the screen 5 seconds. |
+| Taps or holds are not detected on a CYD | Press firmly (resistive touch) and check the touch pins in [docs/BOARDS.md](docs/BOARDS.md). |
+| Menu buttons react at the wrong spot (mirrored or rotated) on a CYD | The touch axes differ on your board variant; see the touch note in [docs/BOARDS.md](docs/BOARDS.md). |
+| Status shows **Offline** | The receiver did not answer with valid JSON. Check the IP, that `http://<ip>/tar1090/data/aircraft.json` opens in a browser from the same network, and that the receiver does not require HTTPS. Re-enter the IP via the menu (hold the screen 5 seconds, release, **Re-run setup**). |
 | Setup portal keeps coming back | The board cannot join your Wi-Fi: check the name/password and that the network is 2.4 GHz. |
 | No aircraft shown but receiver online | No aircraft within the current range: tap to increase it, and check the latitude/longitude. |
 | Build fails on Windows fetching libraries | Install Git and make sure it is on `PATH`. |
@@ -109,6 +116,7 @@ If the board cannot connect to the saved Wi-Fi within about 15 seconds, it reope
 ```
 platformio.ini           build environments (core2, cyd, ...) and pinned libraries
 src/main.cpp             setup/loop, app state, touch gestures (tap / 5 s hold)
+src/menu.*               on-screen menu (orientation, re-run setup)
 src/hal/hal.h            board-abstraction interface (display, touch, battery)
 src/hal/board_core2.cpp  M5Stack Core2 implementation (M5Unified)
 src/hal/board_cyd.cpp    Cheap Yellow Display implementation (LovyanGFX)

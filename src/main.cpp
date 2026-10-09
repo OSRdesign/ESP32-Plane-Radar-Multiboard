@@ -6,18 +6,20 @@
  *
  * First boot: join PlaneRadar-Setup and visit 192.168.4.1 to enter Wi-Fi
  * and radar-centre latitude/longitude. Tap the screen to cycle range.
- * Hold a finger on the screen for five seconds to clear setup data.
+ * Hold a finger on the screen for five seconds and release to open the
+ * menu (screen orientation, re-run setup, back).
  */
 #include <Arduino.h>
 #include <WiFi.h>
 
 #include "config.h"
 #include "hal/hal.h"
+#include "menu.h"
 #include "radar.h"
 
 namespace {
 constexpr uint32_t FETCH_INTERVAL_MS = 5000;
-constexpr uint32_t HOLD_CLEAR_MS = 5000;
+constexpr uint32_t HOLD_MENU_MS = 5000;
 constexpr uint32_t WIFI_CONNECT_MS = 15000;
 constexpr uint32_t TOUCH_DEBOUNCE_MS = 50;
 
@@ -31,11 +33,13 @@ uint32_t touchRawSinceMs = 0;
 uint32_t touchStartedMs = 0;
 
 void onRelease(uint32_t held) {
-  if (held >= HOLD_CLEAR_MS) {
-    config::clear();
-    radar::message("Setup cleared", "Restarting...");
-    delay(500);
-    ESP.restart();
+  if (held >= HOLD_MENU_MS) {
+    menu::run();  // blocks; "Back" has already redrawn the shell
+    // Drop any touch state from before the menu so the next press starts clean.
+    touchRaw = false;
+    touchStable = false;
+    touchRawSinceMs = millis();
+    lastFetchMs = 0;
   } else {
     radar::cycleRange();
     radar::drawShell();
@@ -63,9 +67,10 @@ void pollTouch() {
 void setup() {
   hal::begin();
   Serial.begin(115200);
-  radar::drawShell();
   config::Settings s;
   bool configured = config::load(s);
+  hal::setOrientation(s.rotation);
+  radar::drawShell();
   radar::begin(s.lat, s.lon, s.receiver);
   if (!configured) {
     config::startPortal();

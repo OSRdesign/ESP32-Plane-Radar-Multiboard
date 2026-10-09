@@ -82,8 +82,15 @@ bool load(Settings& out) {
   out.lat = prefs.getDouble("lat", 0);
   out.lon = prefs.getDouble("lon", 0);
   out.receiver = prefs.getString("receiver", "");
+  out.rotation = prefs.getUChar("rot", 0) & 3;
   prefs.end();
   return !out.ssid.isEmpty() && !out.receiver.isEmpty();
+}
+
+void saveRotation(int n) {
+  prefs.begin(NVS_NAMESPACE, false);
+  prefs.putUChar("rot", (uint8_t)(n & 3));
+  prefs.end();
 }
 
 void clear() {

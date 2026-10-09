@@ -8,7 +8,7 @@ ESP32 touchscreen ADS-B radar: polls a local tar1090 `aircraft.json`, plots plan
 
 ## Conventions
 - All app code in `src/` is board-agnostic and draws only through `lgfx::LGFX_Device&` from `hal.h`. Board specifics live ONLY in `src/hal/board_*.cpp` selected by build flag `BOARD_CORE2` / `BOARD_CYD`.
-- Screen is 320x240 landscape on every supported board; use `hal::width()/height()`, never hardcode 320/240 in app code.
+- Screen is 320x240 landscape by default and 240x320 when the user picks portrait in the menu (orientation stored in NVS); use `hal::width()/height()`, never hardcode 320/240 in app code.
 - Battery: `hal::batteryPercent()` returns -1 when the board has none; UI hides it.
 - Never commit Wi-Fi credentials; config is stored in NVS via the captive setup portal.
 - `legacy/core2_original.cpp` is the pre-port reference; do not edit or build it.

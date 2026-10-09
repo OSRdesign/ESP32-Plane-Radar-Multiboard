@@ -12,8 +12,21 @@ namespace {
 
 constexpr char TAR1090_PATH[] = "/tar1090/data/aircraft.json";
 constexpr uint16_t HTTP_TIMEOUT_MS = 4500;
-constexpr int CY = 125;
 constexpr int RADIUS = 100;
+
+// Screen-shape dependent geometry. Landscape (W>H) keeps the original 320x240 layout;
+// portrait moves the circle down so the header block has room above it.
+struct Layout {
+  int w, h, cx, cy;
+};
+Layout layout() {
+  Layout l;
+  l.w = hal::width();
+  l.h = hal::height();
+  l.cx = l.w / 2;
+  l.cy = l.w > l.h ? 125 : 190;
+  return l;
+}
 
 float radarRangeKm = 10.0f;
 double radarLat = 0.0, radarLon = 0.0;
@@ -22,19 +35,17 @@ bool receiverOnline = false;
 int totalPlanes = 0;
 String overheadCallsign = "---";
 
-int cx() { return hal::width() / 2; }
-
 void drawAircraft(float bearing, float distance, const char* label) {
   if (distance > radarRangeKm) return;
   auto& d = hal::display();
-  const int CX = cx();
+  const Layout L = layout();
   float a = (bearing - 90.0f) * DEG_TO_RAD, r = distance / radarRangeKm * RADIUS;
-  int x = CX + (int)(cosf(a) * r), y = CY + (int)(sinf(a) * r);
+  int x = L.cx + (int)(cosf(a) * r), y = L.cy + (int)(sinf(a) * r);
   d.fillTriangle(x, y - 5, x - 4, y + 4, x + 4, y + 4, TFT_RED);
   d.setTextColor(TFT_WHITE, TFT_BLACK);
   d.setTextSize(1);
   d.setTextDatum(lgfx::top_left);
-  d.drawString(label, constrain(x + 6, 0, hal::width() - 50), constrain(y - 8, 0, hal::height() - 15));
+  d.drawString(label, constrain(x + 6, 0, L.w - 50), constrain(y - 8, 0, L.h - 15));
 }
 
 void setOffline() {
@@ -54,19 +65,19 @@ void begin(double lat, double lon, const String& receiverHost) {
 
 void message(const char* a, const char* b) {
   auto& d = hal::display();
-  const int CX = cx();
+  const Layout L = layout();
   d.fillScreen(TFT_BLACK);
   d.setTextDatum(lgfx::middle_center);
   d.setTextColor(TFT_WHITE, TFT_BLACK);
   d.setTextSize(2);
-  d.drawString(a, CX, 106);
-  if (b) { d.setTextSize(1); d.drawString(b, CX, 136); }
+  d.drawString(a, L.cx, L.h / 2 - 14);
+  if (b) { d.setTextSize(1); d.drawString(b, L.cx, L.h / 2 + 16); }
 }
 
 void drawShell() {
   auto& d = hal::display();
-  const int CX = cx();
-  const int W = hal::width(), H = hal::height();
+  const Layout L = layout();
+  const int CX = L.cx, CY = L.cy, W = L.w, H = L.h;
   d.fillScreen(TFT_BLACK);
   d.setTextDatum(lgfx::top_left);
   d.setTextSize(1);
@@ -93,8 +104,8 @@ void drawShell() {
   d.setTextDatum(lgfx::top_center);
   d.setTextColor(TFT_WHITE, TFT_BLACK);
   d.setTextSize(1);
-  d.drawString("N", CX, 14);
-  d.drawString("S", CX, CY + 102);
+  d.drawString("N", CX, CY - RADIUS - 11);
+  d.drawString("S", CX, CY + RADIUS + 2);
   d.setTextDatum(lgfx::middle_left);
   d.drawString("W", CX - 109, CY);
   d.drawString("E", CX + 104, CY);
@@ -103,7 +114,7 @@ void drawShell() {
   d.drawString(String((int)radarRangeKm) + " km", W - 10, 8);
   d.setTextDatum(lgfx::bottom_center);
   d.setTextColor(TFT_DARKGREY, TFT_BLACK);
-  d.drawString("Tap: range  Hold 5 s: setup", CX, H - 2);
+  d.drawString("Tap: range  Hold 5 s: menu", CX, H - 2);
 }
 
 void cycleRange() {

@@ -16,4 +16,9 @@ int width();
 int height();
 int batteryPercent();  // -1 when no battery
 bool touchDown();
+// True while pressed; x/y in the current (rotated) display space.
+bool touchPoint(int& x, int& y);
+// User orientation n in 0..3: absolute rotation = (defaultRotation() + n) % 4.
+void setOrientation(int n);
+int defaultRotation();
 }  // namespace hal

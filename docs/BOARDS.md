@@ -1,7 +1,8 @@
 # Supported boards
 
 Every board runs the same app code. Board-specific code lives only in `src/hal/board_*.cpp`, chosen
-by a build flag set in the board's PlatformIO env. All boards present a 320x240 landscape screen.
+by a build flag set in the board's PlatformIO env. All boards default to a 320x240 landscape screen;
+the user can rotate it (also to portrait, 240x320) from the on-screen menu.
 
 ## M5Stack Core2
 
@@ -52,8 +53,10 @@ define any Core2 pins itself.
 | CS | 33 |
 | IRQ | 36 |
 
-The app only needs to know whether the screen is being touched (tap vs. 5 s hold), not where, so
-touch calibration and rotation do not affect it.
+The menu needs touch coordinates (`hal::touchPoint`). LovyanGFX rotates them together with the
+display rotation, using the `x_min/x_max/y_min/y_max` calibration in `board_cyd.cpp`. If taps land
+mirrored or rotated on a variant, set `-DCYD_TOUCH_OFFSET=n` (touch `offset_rotation`, 0-7) in the env.
+Touch has not been verified on hardware in all four orientations.
 
 ### Known CYD variants
 
@@ -69,7 +72,7 @@ The "CYD" name covers several slightly different boards sold under the same part
 
 1. **Create `src/hal/board_x.cpp`** wrapped in `#ifdef BOARD_X ... #endif`, implementing every
    function declared in `src/hal/hal.h`:
-   - `void begin()`: initialise display (landscape, 320x240), touch, backlight.
+   - `void begin()`: initialise display (default landscape, 320x240), touch, backlight.
    - `void update()`: per-loop housekeeping (may be empty).
    - `lgfx::LGFX_Device& display()`: the display object. LovyanGFX and M5GFX devices both derive
      from `lgfx::LGFX_Device`, so the shared drawing code works unchanged.
@@ -77,6 +80,10 @@ The "CYD" name covers several slightly different boards sold under the same part
    - `int batteryPercent()`: 0-100, or `-1` if the board has no battery gauge (the UI then hides it).
    - `bool touchDown()`: `true` while the screen is touched (no debouncing needed; the caller handles
      gestures).
+   - `bool touchPoint(int& x, int& y)`: like `touchDown()` plus coordinates in the current, rotated
+     display space.
+   - `void setOrientation(int n)` / `int defaultRotation()`: absolute rotation is
+     `(defaultRotation() + n) % 4` for user orientation `n` 0..3.
 2. **Include the board's graphics library in `src/hal/hal.h`**: add an
    `#elif defined(BOARD_X)` branch next to the existing `BOARD_CORE2` / `BOARD_CYD` ones.
 3. **Add an env to `platformio.ini`**:
